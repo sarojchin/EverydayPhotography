@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Surface hierarchy — "stacked sheets of fine cotton paper" */
+  --color-surface: #fcf9f8;
+  --color-surface-low: #f6f3f2;
+  --color-surface-highest: #e5e2e1;
+  --color-surface-lowest: #ffffff;
+
+  /* Primary — warm burnt-orange signature */
+  --color-primary: #ab3500;
+  --color-primary-container: #ff6b35;
+
+  /* Tertiary — streak bloom teal */
+  --color-tertiary: #00677e;
+  --color-tertiary-container: #00a7cb;
+
+  /* Semantic text */
+  --color-on-surface: #1c1b1b;
+  --color-outline-variant: #e1bfb5;
+
+  /* Font families */
+  --font-display: "Manrope Variable", "Manrope", system-ui, sans-serif;
+  --font-body: "Inter Variable", "Inter", system-ui, sans-serif;
+}
+
+html {
+  background: var(--color-surface);
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+}
