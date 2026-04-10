@@ -8,7 +8,8 @@ import {
   Image,
   Alert,
 } from "react-native";
-import { useState, useCallback } from "react";
+import * as ImagePicker from "expo-image-picker";
+import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import {
@@ -101,6 +102,48 @@ function HomeScreen() {
   const insets = useSafeAreaInsets();
   const currentDay = 4;
   const totalDays = 30;
+  const [photoUri, setPhotoUri] = React.useState<string | null>(null);
+
+  async function handleTakePhoto() {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Camera access needed",
+        "Allow camera access in Settings to take photos."
+      );
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.92,
+    });
+    if (!result.canceled) {
+      setPhotoUri(result.assets[0].uri);
+    }
+  }
+
+  async function handleUploadFromLibrary() {
+    const { status } =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Photo library access needed",
+        "Allow photo library access in Settings to upload photos."
+      );
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.92,
+    });
+    if (!result.canceled) {
+      setPhotoUri(result.assets[0].uri);
+    }
+  }
 
   const [pickedImageUri, setPickedImageUri] = useState<string | null>(null);
 
@@ -240,9 +283,9 @@ function HomeScreen() {
         {/* Photo card */}
         <View style={styles.section}>
           <View style={styles.photoCard}>
-            {pickedImageUri ? (
+            {photoUri ? (
               <Image
-                source={{ uri: pickedImageUri }}
+                source={{ uri: photoUri }}
                 style={StyleSheet.absoluteFill}
                 resizeMode="cover"
               />
@@ -299,7 +342,7 @@ function HomeScreen() {
         {/* CTAs */}
         <View style={[styles.section, styles.ctaSection]}>
           {/* Primary — Take Photo */}
-          <Pressable style={styles.primaryBtn}>
+          <Pressable style={styles.primaryBtn} onPress={handleTakePhoto}>
             <LinearGradient
               colors={[tokens.primary, tokens.primaryContainer]}
               start={{ x: 0, y: 0 }}
