@@ -21,6 +21,33 @@ import {
 } from "@expo-google-fonts/inter";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
+
+/* Cross-platform blur: real BlurView on iOS, semi-transparent View on Android */
+function PlatformBlur({
+  style,
+  children,
+  intensity = 40,
+  tint = "dark",
+}: {
+  style?: object;
+  children?: React.ReactNode;
+  intensity?: number;
+  tint?: "dark" | "light" | "systemChromeMaterialLight";
+}) {
+  if (Platform.OS === "ios") {
+    return (
+      <BlurView intensity={intensity} tint={tint} style={style}>
+        {children}
+      </BlurView>
+    );
+  }
+  const bg =
+    tint === "dark"
+      ? "rgba(20,20,20,0.55)"
+      : "rgba(255,255,255,0.82)";
+  return <View style={[style, { backgroundColor: bg }]}>{children}</View>;
+}
+
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -203,14 +230,14 @@ function HomeScreen() {
 
             {/* FOOD category tag */}
             <View style={styles.categoryTag}>
-              <BlurView
+              <PlatformBlur
                 intensity={40}
                 tint="dark"
                 style={styles.categoryBlur}
               >
                 <View style={styles.categoryDot} />
                 <Text style={styles.categoryText}>Food</Text>
-              </BlurView>
+              </PlatformBlur>
             </View>
           </View>
         </View>
@@ -250,7 +277,7 @@ function HomeScreen() {
       </ScrollView>
 
       {/* ── Bottom navigation ── */}
-      <BlurView
+      <PlatformBlur
         intensity={80}
         tint="systemChromeMaterialLight"
         style={[
@@ -270,7 +297,7 @@ function HomeScreen() {
           <CameraNavIcon />
           <Text style={styles.navLabel}>Photos</Text>
         </Pressable>
-      </BlurView>
+      </PlatformBlur>
     </View>
   );
 }
@@ -624,10 +651,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingTop: 12,
     paddingHorizontal: 24,
-    backgroundColor: Platform.select({
-      ios: "transparent",
-      android: "rgba(255,255,255,0.85)",
-    }),
   },
   navItem: {
     alignItems: "center",
