@@ -155,7 +155,7 @@ function HomeScreen() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <ApertureIcon />
-          <Text style={styles.headerTitle}>The Editorial Eye</Text>
+          <Text style={styles.headerTitle}>Everyday Photography</Text>
         </View>
         <Pressable accessibilityLabel="Menu" hitSlop={12}>
           <MenuIcon />
