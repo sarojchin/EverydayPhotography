@@ -5,7 +5,11 @@ import {
   Pressable,
   StyleSheet,
   Platform,
+  Image,
+  Alert,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import {
@@ -96,6 +100,48 @@ function HomeScreen() {
   const insets = useSafeAreaInsets();
   const currentDay = 4;
   const totalDays = 30;
+  const [photoUri, setPhotoUri] = React.useState<string | null>(null);
+
+  async function handleTakePhoto() {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Camera access needed",
+        "Allow camera access in Settings to take photos."
+      );
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.92,
+    });
+    if (!result.canceled) {
+      setPhotoUri(result.assets[0].uri);
+    }
+  }
+
+  async function handleUploadFromLibrary() {
+    const { status } =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Photo library access needed",
+        "Allow photo library access in Settings to upload photos."
+      );
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.92,
+    });
+    if (!result.canceled) {
+      setPhotoUri(result.assets[0].uri);
+    }
+  }
 
   /* Streak-Bloom ring math */
   const radius = 34;
@@ -207,26 +253,36 @@ function HomeScreen() {
         {/* Photo card */}
         <View style={styles.section}>
           <View style={styles.photoCard}>
-            <LinearGradient
-              colors={["#5C4033", "#6B8E23", "#8B7355", "#A0522D"]}
-              locations={[0, 0.35, 0.65, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={StyleSheet.absoluteFill}
-            />
-            {/* Warm overlay accents */}
-            <LinearGradient
-              colors={[
-                "rgba(107,142,35,0.5)",
-                "transparent",
-                "rgba(255,200,60,0.35)",
-                "transparent",
-              ]}
-              locations={[0, 0.4, 0.6, 1]}
-              start={{ x: 0.3, y: 0.3 }}
-              end={{ x: 0.8, y: 0.8 }}
-              style={StyleSheet.absoluteFill}
-            />
+            {photoUri ? (
+              <Image
+                source={{ uri: photoUri }}
+                style={StyleSheet.absoluteFill}
+                resizeMode="cover"
+              />
+            ) : (
+              <>
+                <LinearGradient
+                  colors={["#5C4033", "#6B8E23", "#8B7355", "#A0522D"]}
+                  locations={[0, 0.35, 0.65, 1]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                />
+                {/* Warm overlay accents */}
+                <LinearGradient
+                  colors={[
+                    "rgba(107,142,35,0.5)",
+                    "transparent",
+                    "rgba(255,200,60,0.35)",
+                    "transparent",
+                  ]}
+                  locations={[0, 0.4, 0.6, 1]}
+                  start={{ x: 0.3, y: 0.3 }}
+                  end={{ x: 0.8, y: 0.8 }}
+                  style={StyleSheet.absoluteFill}
+                />
+              </>
+            )}
 
             {/* FOOD category tag */}
             <View style={styles.categoryTag}>
@@ -256,7 +312,7 @@ function HomeScreen() {
         {/* CTAs */}
         <View style={[styles.section, styles.ctaSection]}>
           {/* Primary — Take Photo */}
-          <Pressable style={styles.primaryBtn}>
+          <Pressable style={styles.primaryBtn} onPress={handleTakePhoto}>
             <LinearGradient
               colors={[tokens.primary, tokens.primaryContainer]}
               start={{ x: 0, y: 0 }}
@@ -269,7 +325,7 @@ function HomeScreen() {
           </Pressable>
 
           {/* Ghost — Upload */}
-          <Pressable style={styles.ghostBtn}>
+          <Pressable style={styles.ghostBtn} onPress={handleUploadFromLibrary}>
             <UploadIcon />
             <Text style={styles.ghostBtnText}>Upload from Library</Text>
           </Pressable>
