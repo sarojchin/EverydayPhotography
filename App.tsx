@@ -66,8 +66,6 @@ import Svg, {
   Rect,
 } from "react-native-svg";
 import * as tokens from "./constants/tokens";
-import * as ImagePicker from "expo-image-picker";
-import { File, Paths } from "expo-file-system";
 
 /* ────────────────────────────────────────────────────────── */
 /*  App shell                                                 */
@@ -144,34 +142,6 @@ function HomeScreen() {
       setPhotoUri(result.assets[0].uri);
     }
   }
-
-  const [pickedImageUri, setPickedImageUri] = useState<string | null>(null);
-
-  const handleUploadFromLibrary = useCallback(async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert(
-        "Permission required",
-        "Allow access to your photo library to upload a photo."
-      );
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      quality: 1,
-      allowsEditing: false,
-    });
-
-    if (result.canceled || !result.assets?.length) return;
-
-    const asset = result.assets[0];
-    const ext = asset.uri.split(".").pop() ?? "jpg";
-    const filename = `photo_${Date.now()}.${ext}`;
-    const destFile = new File(Paths.document, filename);
-    new File(asset.uri).copy(destFile);
-    setPickedImageUri(destFile.uri);
-  }, []);
 
   /* Streak-Bloom ring math */
   const radius = 34;
