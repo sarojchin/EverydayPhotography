@@ -5,7 +5,10 @@ import {
   Pressable,
   StyleSheet,
   Platform,
+  Image,
+  Alert,
 } from "react-native";
+import { useState, useCallback } from "react";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import {
@@ -62,6 +65,8 @@ import Svg, {
   Rect,
 } from "react-native-svg";
 import * as tokens from "./constants/tokens";
+import * as ImagePicker from "expo-image-picker";
+import { File, Paths } from "expo-file-system";
 
 /* ────────────────────────────────────────────────────────── */
 /*  App shell                                                 */
@@ -96,6 +101,34 @@ function HomeScreen() {
   const insets = useSafeAreaInsets();
   const currentDay = 4;
   const totalDays = 30;
+
+  const [pickedImageUri, setPickedImageUri] = useState<string | null>(null);
+
+  const handleUploadFromLibrary = useCallback(async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission required",
+        "Allow access to your photo library to upload a photo."
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      quality: 1,
+      allowsEditing: false,
+    });
+
+    if (result.canceled || !result.assets?.length) return;
+
+    const asset = result.assets[0];
+    const ext = asset.uri.split(".").pop() ?? "jpg";
+    const filename = `photo_${Date.now()}.${ext}`;
+    const destFile = new File(Paths.document, filename);
+    new File(asset.uri).copy(destFile);
+    setPickedImageUri(destFile.uri);
+  }, []);
 
   /* Streak-Bloom ring math */
   const radius = 34;
@@ -207,26 +240,36 @@ function HomeScreen() {
         {/* Photo card */}
         <View style={styles.section}>
           <View style={styles.photoCard}>
-            <LinearGradient
-              colors={["#5C4033", "#6B8E23", "#8B7355", "#A0522D"]}
-              locations={[0, 0.35, 0.65, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={StyleSheet.absoluteFill}
-            />
-            {/* Warm overlay accents */}
-            <LinearGradient
-              colors={[
-                "rgba(107,142,35,0.5)",
-                "transparent",
-                "rgba(255,200,60,0.35)",
-                "transparent",
-              ]}
-              locations={[0, 0.4, 0.6, 1]}
-              start={{ x: 0.3, y: 0.3 }}
-              end={{ x: 0.8, y: 0.8 }}
-              style={StyleSheet.absoluteFill}
-            />
+            {pickedImageUri ? (
+              <Image
+                source={{ uri: pickedImageUri }}
+                style={StyleSheet.absoluteFill}
+                resizeMode="cover"
+              />
+            ) : (
+              <>
+                <LinearGradient
+                  colors={["#5C4033", "#6B8E23", "#8B7355", "#A0522D"]}
+                  locations={[0, 0.35, 0.65, 1]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                />
+                {/* Warm overlay accents */}
+                <LinearGradient
+                  colors={[
+                    "rgba(107,142,35,0.5)",
+                    "transparent",
+                    "rgba(255,200,60,0.35)",
+                    "transparent",
+                  ]}
+                  locations={[0, 0.4, 0.6, 1]}
+                  start={{ x: 0.3, y: 0.3 }}
+                  end={{ x: 0.8, y: 0.8 }}
+                  style={StyleSheet.absoluteFill}
+                />
+              </>
+            )}
 
             {/* FOOD category tag */}
             <View style={styles.categoryTag}>
@@ -269,7 +312,7 @@ function HomeScreen() {
           </Pressable>
 
           {/* Ghost — Upload */}
-          <Pressable style={styles.ghostBtn}>
+          <Pressable style={styles.ghostBtn} onPress={handleUploadFromLibrary}>
             <UploadIcon />
             <Text style={styles.ghostBtnText}>Upload from Library</Text>
           </Pressable>
