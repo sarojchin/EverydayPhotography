@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
@@ -66,6 +67,53 @@ import Svg, {
   Rect,
 } from "react-native-svg";
 import * as tokens from "./constants/tokens";
+
+/* ────────────────────────────────────────────────────────── */
+/*  Challenge data persistence                                 */
+/* ────────────────────────────────────────────────────────── */
+
+const DATA_FILE = FileSystem.documentDirectory! + "challenge_data.json";
+
+type ChallengeData = {
+  startDate: string;       // "YYYY-MM-DD"
+  streak: number;
+  lastPhotoDate: string | null;
+};
+
+function todayStr(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
+function getDayNumber(startDate: string): number {
+  const start = new Date(startDate + "T00:00:00");
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const diff = Math.floor((now.getTime() - start.getTime()) / 86400000);
+  return Math.min(Math.max(diff + 1, 1), 30);
+}
+
+async function loadChallengeData(): Promise<ChallengeData> {
+  try {
+    const info = await FileSystem.getInfoAsync(DATA_FILE);
+    if (info.exists) {
+      const raw = await FileSystem.readAsStringAsync(DATA_FILE);
+      return JSON.parse(raw) as ChallengeData;
+    }
+  } catch {}
+  const data: ChallengeData = { startDate: todayStr(), streak: 1, lastPhotoDate: null };
+  await FileSystem.writeAsStringAsync(DATA_FILE, JSON.stringify(data));
+  return data;
+}
+
+async function recordPhotoForToday(data: ChallengeData): Promise<ChallengeData> {
+  const today = todayStr();
+  if (data.lastPhotoDate === today) return data;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  const newStreak = data.lastPhotoDate === yesterday ? data.streak + 1 : 1;
+  const updated: ChallengeData = { ...data, lastPhotoDate: today, streak: newStreak };
+  await FileSystem.writeAsStringAsync(DATA_FILE, JSON.stringify(updated));
+  return updated;
+}
 
 /* ────────────────────────────────────────────────────────── */
 /*  Gallery data types & mock photos                          */
@@ -126,9 +174,19 @@ export default function App() {
 
 function HomeScreen({ onNavigateGallery }: { onNavigateGallery: () => void }) {
   const insets = useSafeAreaInsets();
-  const currentDay = 4;
   const totalDays = 30;
+  const [currentDay, setCurrentDay] = React.useState(1);
+  const [streak, setStreak] = React.useState(1);
+  const [challengeData, setChallengeData] = React.useState<ChallengeData | null>(null);
   const [photoUri, setPhotoUri] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    loadChallengeData().then((data) => {
+      setChallengeData(data);
+      setCurrentDay(getDayNumber(data.startDate));
+      setStreak(data.streak);
+    });
+  }, []);
 
   async function handleTakePhoto() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -147,6 +205,11 @@ function HomeScreen({ onNavigateGallery }: { onNavigateGallery: () => void }) {
     });
     if (!result.canceled) {
       setPhotoUri(result.assets[0].uri);
+      if (challengeData) {
+        const updated = await recordPhotoForToday(challengeData);
+        setChallengeData(updated);
+        setStreak(updated.streak);
+      }
     }
   }
 
@@ -168,6 +231,11 @@ function HomeScreen({ onNavigateGallery }: { onNavigateGallery: () => void }) {
     });
     if (!result.canceled) {
       setPhotoUri(result.assets[0].uri);
+      if (challengeData) {
+        const updated = await recordPhotoForToday(challengeData);
+        setChallengeData(updated);
+        setStreak(updated.streak);
+      }
     }
   }
 
@@ -198,7 +266,13 @@ function HomeScreen({ onNavigateGallery }: { onNavigateGallery: () => void }) {
       >
         {/* Day counter */}
         <View style={styles.section}>
-          <Text style={styles.label}>Monday, Oct 24</Text>
+          <Text style={styles.label}>
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "short",
+              day: "numeric",
+            })}
+          </Text>
           <Text style={styles.dayHeading}>
             Day {currentDay} of {totalDays}
           </Text>
@@ -211,7 +285,7 @@ function HomeScreen({ onNavigateGallery }: { onNavigateGallery: () => void }) {
             <View style={styles.streakValue}>
               <FlameIcon />
               <Text style={styles.streakText}>
-                {currentDay} Day Streak
+                {streak} Day Streak
               </Text>
             </View>
           </View>
