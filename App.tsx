@@ -68,6 +68,28 @@ import Svg, {
 import * as tokens from "./constants/tokens";
 
 /* ────────────────────────────────────────────────────────── */
+/*  Gallery data types & mock photos                          */
+/* ────────────────────────────────────────────────────────── */
+
+type GalleryPhoto = {
+  id: string;
+  day: number;
+  category: string;
+  uri: string | null;
+  gradientColors: [string, string];
+  aspectRatio: number;
+};
+
+const GALLERY_MOCK_PHOTOS: GalleryPhoto[] = [
+  { id: "1", day: 8, category: "Travel",   uri: null, gradientColors: ["#4A7FA5", "#1E4A6F"], aspectRatio: 3 / 4 },
+  { id: "2", day: 7, category: "Food",     uri: null, gradientColors: ["#C17F3E", "#7A3D0A"], aspectRatio: 1 },
+  { id: "3", day: 6, category: "Portrait", uri: null, gradientColors: ["#2C3E50", "#1A2530"], aspectRatio: 3 / 4 },
+  { id: "4", day: 5, category: "Street",   uri: null, gradientColors: ["#8D9DB6", "#4A5568"], aspectRatio: 1 },
+  { id: "5", day: 4, category: "Tech",     uri: null, gradientColors: ["#0D7377", "#032D30"], aspectRatio: 1 },
+  { id: "6", day: 3, category: "Nature",   uri: null, gradientColors: ["#2D6A4F", "#1B4332"], aspectRatio: 1 },
+];
+
+/* ────────────────────────────────────────────────────────── */
 /*  App shell                                                 */
 /* ────────────────────────────────────────────────────────── */
 
@@ -82,12 +104,18 @@ export default function App() {
     Inter_600SemiBold,
   });
 
+  const [activeScreen, setActiveScreen] = React.useState<"home" | "gallery">("home");
+
   if (!fontsLoaded) return null;
 
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <HomeScreen />
+      {activeScreen === "home" ? (
+        <HomeScreen onNavigateGallery={() => setActiveScreen("gallery")} />
+      ) : (
+        <GalleryScreen onNavigateHome={() => setActiveScreen("home")} />
+      )}
     </SafeAreaProvider>
   );
 }
@@ -96,7 +124,7 @@ export default function App() {
 /*  Home screen                                               */
 /* ────────────────────────────────────────────────────────── */
 
-function HomeScreen() {
+function HomeScreen({ onNavigateGallery }: { onNavigateGallery: () => void }) {
   const insets = useSafeAreaInsets();
   const currentDay = 4;
   const totalDays = 30;
@@ -345,7 +373,7 @@ function HomeScreen() {
           <HomeIcon active />
           <Text style={[styles.navLabel, styles.navLabelActive]}>Home</Text>
         </Pressable>
-        <Pressable style={styles.navItem}>
+        <Pressable style={styles.navItem} onPress={onNavigateGallery}>
           <GalleryIcon />
           <Text style={styles.navLabel}>Gallery</Text>
         </Pressable>
@@ -354,6 +382,108 @@ function HomeScreen() {
           <Text style={styles.navLabel}>Photos</Text>
         </Pressable>
       </PlatformBlur>
+    </View>
+  );
+}
+
+/* ────────────────────────────────────────────────────────── */
+/*  Gallery screen                                            */
+/* ────────────────────────────────────────────────────────── */
+
+function GalleryScreen({ onNavigateHome }: { onNavigateHome: () => void }) {
+  const insets = useSafeAreaInsets();
+  const leftCol = GALLERY_MOCK_PHOTOS.filter((_, i) => i % 2 === 0);
+  const rightCol = GALLERY_MOCK_PHOTOS.filter((_, i) => i % 2 !== 0);
+
+  return (
+    <View style={[styles.root, { paddingTop: insets.top }]}>
+      {/* ── Header ── */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <ApertureIcon />
+          <Text style={styles.headerTitle}>THE EDITORIAL EYE</Text>
+        </View>
+        <View style={styles.avatarCircle} />
+      </View>
+
+      {/* ── Scrollable content ── */}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: 0 }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Heading */}
+        <View style={{ paddingHorizontal: 24, marginTop: 20 }}>
+          <Text style={styles.galleryHeading}>GALLERY</Text>
+          <Text style={styles.gallerySubtitle}>30-DAY PERSPECTIVE CHALLENGE</Text>
+        </View>
+
+        {/* Masonry grid */}
+        <View style={styles.masonryContainer}>
+          <View style={styles.masonryCol}>
+            {leftCol.map((photo) => (
+              <GalleryCard key={photo.id} photo={photo} />
+            ))}
+          </View>
+          <View style={styles.masonryCol}>
+            {rightCol.map((photo) => (
+              <GalleryCard key={photo.id} photo={photo} />
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* ── Bottom navigation ── */}
+      <PlatformBlur
+        intensity={80}
+        tint="systemChromeMaterialLight"
+        style={[
+          styles.bottomNav,
+          { paddingBottom: Math.max(insets.bottom, 8) },
+        ]}
+      >
+        <Pressable style={styles.navItem} onPress={onNavigateHome}>
+          <HomeIcon />
+          <Text style={styles.navLabel}>Home</Text>
+        </Pressable>
+        <Pressable style={styles.navItem}>
+          <GalleryIcon active />
+          <Text style={[styles.navLabel, styles.navLabelActive]}>Gallery</Text>
+        </Pressable>
+        <Pressable style={styles.navItem}>
+          <CameraNavIcon />
+          <Text style={styles.navLabel}>Photos</Text>
+        </Pressable>
+      </PlatformBlur>
+    </View>
+  );
+}
+
+function GalleryCard({ photo }: { photo: GalleryPhoto }) {
+  return (
+    <View style={styles.galleryCardWrapper}>
+      <View style={[styles.galleryCardImage, { aspectRatio: photo.aspectRatio }]}>
+        {photo.uri ? (
+          <Image
+            source={{ uri: photo.uri }}
+            style={StyleSheet.absoluteFill}
+            resizeMode="cover"
+          />
+        ) : (
+          <LinearGradient
+            colors={photo.gradientColors}
+            style={StyleSheet.absoluteFill}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          />
+        )}
+      </View>
+      <View style={styles.galleryCardMeta}>
+        <Text style={styles.galleryCardCategory}>{photo.category}</Text>
+        <Text style={styles.galleryCardDay}>
+          Day {String(photo.day).padStart(2, "0")}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -462,14 +592,15 @@ function HomeIcon({ active = false }) {
   );
 }
 
-function GalleryIcon() {
-  const color = tokens.onSurface;
+function GalleryIcon({ active = false }: { active?: boolean }) {
+  const color = active ? tokens.primary : tokens.onSurface;
+  const opacity = active ? 1 : 0.35;
   return (
-    <Svg width={22} height={22} viewBox="0 0 22 22" fill="none" opacity={0.35}>
-      <Rect x={3} y={3} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.4} />
-      <Rect x={12} y={3} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.4} />
-      <Rect x={3} y={12} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.4} />
-      <Rect x={12} y={12} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.4} />
+    <Svg width={22} height={22} viewBox="0 0 22 22" fill="none" opacity={opacity}>
+      <Rect x={3} y={3} width={7} height={7} rx={1.5} fill={active ? color : "none"} stroke={color} strokeWidth={1.4} />
+      <Rect x={12} y={3} width={7} height={7} rx={1.5} fill={active ? color : "none"} stroke={color} strokeWidth={1.4} />
+      <Rect x={3} y={12} width={7} height={7} rx={1.5} fill={active ? color : "none"} stroke={color} strokeWidth={1.4} />
+      <Rect x={12} y={12} width={7} height={7} rx={1.5} fill={active ? color : "none"} stroke={color} strokeWidth={1.4} />
     </Svg>
   );
 }
@@ -721,5 +852,67 @@ const styles = StyleSheet.create({
   },
   navLabelActive: {
     color: tokens.primary,
+  },
+
+  /* ── Gallery screen ── */
+  galleryHeading: {
+    fontFamily: "Manrope_800ExtraBold",
+    fontSize: 52,
+    letterSpacing: -1,
+    lineHeight: 54,
+    color: tokens.onSurface,
+  },
+  gallerySubtitle: {
+    fontFamily: "Inter_500Medium",
+    fontSize: 11,
+    textTransform: "uppercase",
+    letterSpacing: 1.5,
+    color: tokens.onSurfaceMuted,
+    marginTop: 6,
+  },
+  masonryContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    gap: 10,
+    marginTop: 20,
+    paddingBottom: 20,
+  },
+  masonryCol: {
+    flex: 1,
+    gap: 10,
+  },
+  galleryCardWrapper: {
+    gap: 7,
+  },
+  galleryCardImage: {
+    borderRadius: 18,
+    overflow: "hidden",
+    backgroundColor: tokens.surfaceHighest,
+  },
+  galleryCardMeta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 2,
+  },
+  galleryCardCategory: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: 1.2,
+    color: tokens.onSurface,
+  },
+  galleryCardDay: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: 0.9,
+    color: tokens.onSurfaceMuted,
+  },
+  avatarCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: tokens.surfaceHighest,
   },
 });
