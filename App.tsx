@@ -466,6 +466,7 @@ function HomeScreen({ onNavigateGallery }: { onNavigateGallery: () => void }) {
 
 function GalleryScreen({ onNavigateHome }: { onNavigateHome: () => void }) {
   const insets = useSafeAreaInsets();
+  const hasPhotos = GALLERY_MOCK_PHOTOS.some((p) => p.uri !== null);
   const leftCol = GALLERY_MOCK_PHOTOS.filter((_, i) => i % 2 === 0);
   const rightCol = GALLERY_MOCK_PHOTOS.filter((_, i) => i % 2 !== 0);
 
@@ -492,19 +493,27 @@ function GalleryScreen({ onNavigateHome }: { onNavigateHome: () => void }) {
           <Text style={styles.gallerySubtitle}>30-DAY PERSPECTIVE CHALLENGE</Text>
         </View>
 
-        {/* Masonry grid */}
-        <View style={styles.masonryContainer}>
-          <View style={styles.masonryCol}>
-            {leftCol.map((photo) => (
-              <GalleryCard key={photo.id} photo={photo} />
-            ))}
+        {/* Masonry grid or empty state */}
+        {hasPhotos ? (
+          <View style={styles.masonryContainer}>
+            <View style={styles.masonryCol}>
+              {leftCol.map((photo) => (
+                <GalleryCard key={photo.id} photo={photo} />
+              ))}
+            </View>
+            <View style={styles.masonryCol}>
+              {rightCol.map((photo) => (
+                <GalleryCard key={photo.id} photo={photo} />
+              ))}
+            </View>
           </View>
-          <View style={styles.masonryCol}>
-            {rightCol.map((photo) => (
-              <GalleryCard key={photo.id} photo={photo} />
-            ))}
+        ) : (
+          <View style={styles.galleryEmptyState}>
+            <Text style={styles.galleryEmptyHeadline}>
+              {"YOUR FIRST\nSHOT\nAWAITS."}
+            </Text>
           </View>
-        </View>
+        )}
       </ScrollView>
 
       {/* ── Bottom navigation ── */}
@@ -954,6 +963,18 @@ const styles = StyleSheet.create({
   masonryCol: {
     flex: 1,
     gap: 10,
+  },
+  galleryEmptyState: {
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 40,
+  },
+  galleryEmptyHeadline: {
+    fontFamily: "Manrope_800ExtraBold",
+    fontSize: 42,
+    letterSpacing: -1,
+    lineHeight: 44,
+    color: tokens.onSurface,
   },
   galleryCardWrapper: {
     gap: 7,
