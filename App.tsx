@@ -25,6 +25,7 @@ import {
 } from "@expo-google-fonts/inter";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
+import * as FileSystem from "expo-file-system";
 
 /* Cross-platform blur: real BlurView on iOS, semi-transparent View on Android */
 function PlatformBlur({
@@ -68,6 +69,89 @@ import Svg, {
 import * as tokens from "./constants/tokens";
 
 /* ────────────────────────────────────────────────────────── */
+/*  Progress tracking                                          */
+/* ────────────────────────────────────────────────────────── */
+
+const PROGRESS_FILE = (FileSystem.documentDirectory ?? "") + "progress.json";
+const TOTAL_DAYS = 30;
+
+interface ProgressData {
+  startDate: string;       // YYYY-MM-DD
+  submittedDates: string[]; // YYYY-MM-DD entries for each day a photo was submitted
+}
+
+function toDateStr(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function todayStr(): string {
+  return toDateStr(new Date());
+}
+
+function daysBetween(from: string, to: string): number {
+  const msPerDay = 1000 * 60 * 60 * 24;
+  return Math.floor(
+    (new Date(to).getTime() - new Date(from).getTime()) / msPerDay
+  );
+}
+
+function computeStreak(submittedDates: string[]): number {
+  if (submittedDates.length === 0) return 0;
+  const sorted = [...submittedDates].sort().reverse(); // newest first
+  const today = todayStr();
+  const yesterday = toDateStr(
+    new Date(new Date().setDate(new Date().getDate() - 1))
+  );
+  // Streak must include today or yesterday to still be alive
+  if (sorted[0] !== today && sorted[0] !== yesterday) return 0;
+
+  let streak = 0;
+  let expected = sorted[0];
+  for (const date of sorted) {
+    if (date === expected) {
+      streak++;
+      const prev = new Date(expected);
+      prev.setDate(prev.getDate() - 1);
+      expected = toDateStr(prev);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function formatDisplayDate(date: Date): string {
+  const dayNames = [
+    "Sunday", "Monday", "Tuesday", "Wednesday",
+    "Thursday", "Friday", "Saturday",
+  ];
+  const monthNames = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+  return `${dayNames[date.getDay()]}, ${monthNames[date.getMonth()]} ${date.getDate()}`;
+}
+
+async function loadProgress(): Promise<ProgressData> {
+  try {
+    const info = await FileSystem.getInfoAsync(PROGRESS_FILE);
+    if (info.exists) {
+      const raw = await FileSystem.readAsStringAsync(PROGRESS_FILE);
+      return JSON.parse(raw) as ProgressData;
+    }
+  } catch {
+    // Fall through to initialize fresh data
+  }
+  const fresh: ProgressData = { startDate: todayStr(), submittedDates: [] };
+  await FileSystem.writeAsStringAsync(PROGRESS_FILE, JSON.stringify(fresh));
+  return fresh;
+}
+
+async function saveProgress(data: ProgressData): Promise<void> {
+  await FileSystem.writeAsStringAsync(PROGRESS_FILE, JSON.stringify(data));
+}
+
+/* ────────────────────────────────────────────────────────── */
 /*  App shell                                                 */
 /* ────────────────────────────────────────────────────────── */
 
@@ -98,9 +182,39 @@ export default function App() {
 
 function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const currentDay = 4;
-  const totalDays = 30;
+  const totalDays = TOTAL_DAYS;
+
   const [photoUri, setPhotoUri] = React.useState<string | null>(null);
+  const [progress, setProgress] = React.useState<ProgressData>({
+    startDate: todayStr(),
+    submittedDates: [],
+  });
+
+  // Load saved progress on mount
+  React.useEffect(() => {
+    loadProgress().then(setProgress);
+  }, []);
+
+  const today = todayStr();
+  const currentDay = Math.min(
+    Math.max(daysBetween(progress.startDate, today) + 1, 1),
+    totalDays
+  );
+  const streak = computeStreak(progress.submittedDates);
+  const displayDate = formatDisplayDate(new Date());
+  const todaySubmitted = progress.submittedDates.includes(today);
+
+  async function recordPhotoForToday(uri: string) {
+    setPhotoUri(uri);
+    if (!todaySubmitted) {
+      const updated: ProgressData = {
+        ...progress,
+        submittedDates: [...progress.submittedDates, today],
+      };
+      setProgress(updated);
+      await saveProgress(updated);
+    }
+  }
 
   async function handleTakePhoto() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -118,7 +232,7 @@ function HomeScreen() {
       quality: 0.92,
     });
     if (!result.canceled) {
-      setPhotoUri(result.assets[0].uri);
+      await recordPhotoForToday(result.assets[0].uri);
     }
   }
 
@@ -139,7 +253,7 @@ function HomeScreen() {
       quality: 0.92,
     });
     if (!result.canceled) {
-      setPhotoUri(result.assets[0].uri);
+      await recordPhotoForToday(result.assets[0].uri);
     }
   }
 
@@ -170,7 +284,7 @@ function HomeScreen() {
       >
         {/* Day counter */}
         <View style={styles.section}>
-          <Text style={styles.label}>Monday, Oct 24</Text>
+          <Text style={styles.label}>{displayDate}</Text>
           <Text style={styles.dayHeading}>
             Day {currentDay} of {totalDays}
           </Text>
@@ -183,7 +297,7 @@ function HomeScreen() {
             <View style={styles.streakValue}>
               <FlameIcon />
               <Text style={styles.streakText}>
-                {currentDay} Day Streak
+                {streak} Day{streak !== 1 ? "s" : ""} Streak
               </Text>
             </View>
           </View>
