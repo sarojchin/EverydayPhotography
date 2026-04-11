@@ -965,16 +965,19 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   galleryEmptyState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 24,
-    paddingTop: 40,
-    paddingBottom: 40,
+    paddingVertical: 80,
   },
   galleryEmptyHeadline: {
     fontFamily: "Manrope_800ExtraBold",
     fontSize: 42,
     letterSpacing: -1,
     lineHeight: 44,
-    color: tokens.onSurface,
+    textAlign: "center",
+    color: tokens.onSurfaceMuted,
   },
   galleryCardWrapper: {
     gap: 7,
