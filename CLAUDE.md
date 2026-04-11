@@ -219,8 +219,4 @@ type ChallengeData = { startDate: string, streak: number, lastPhotoDate: string 
 // todayStr(): string                                — "YYYY-MM-DD"
 ```
 
-## Changelog
 
-| Date | Change |
-|------|--------|
-| 2026-04-11 | Initial modular architecture: split monolithic App.tsx into types/, services/, data/, components/, screens/, styles/ |
