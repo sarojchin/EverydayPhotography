@@ -484,7 +484,7 @@ function GalleryScreen({ onNavigateHome }: { onNavigateHome: () => void }) {
       {/* ── Scrollable content ── */}
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: 0 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: 0 }, !hasPhotos && { flexGrow: 1 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Heading */}
@@ -510,7 +510,7 @@ function GalleryScreen({ onNavigateHome }: { onNavigateHome: () => void }) {
         ) : (
           <View style={styles.galleryEmptyState}>
             <Text style={styles.galleryEmptyHeadline}>
-              {"YOUR FIRST\nSHOT\nAWAITS."}
+              {"Your first\nshot\nawaits."}
             </Text>
           </View>
         )}
