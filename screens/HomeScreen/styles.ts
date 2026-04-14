@@ -100,20 +100,38 @@ export const styles = StyleSheet.create({
     color: "#ffffff",
   },
 
-  /* ── Daily prompt ── */
-  promptHeading: {
-    fontFamily: "Manrope_700Bold",
-    fontSize: 21,
-    letterSpacing: -0.42,
-    lineHeight: 28,
-    color: tokens.onSurface,
+  /* ── Today's Lesson entry card ── */
+  lessonCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    padding: 20,
+    borderRadius: 24,
+    backgroundColor: tokens.surfaceLowest,
   },
-  promptBody: {
+  lessonCardIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: tokens.surfaceHighest,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lessonCardBody: {
+    flex: 1,
+  },
+  lessonCardTitle: {
+    fontFamily: "Manrope_700Bold",
+    fontSize: 19,
+    letterSpacing: -0.38,
+    color: tokens.onSurface,
+    marginTop: 4,
+  },
+  lessonCardSub: {
     fontFamily: "Inter_400Regular",
-    fontSize: 14,
-    lineHeight: 22,
-    color: "rgba(28,27,27,0.55)",
-    marginTop: 10,
+    fontSize: 13,
+    color: tokens.onSurfaceMuted,
+    marginTop: 2,
   },
 
   /* ── CTAs ── */

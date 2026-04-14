@@ -6,9 +6,7 @@ import {
   Pressable,
   StyleSheet,
   Image,
-  Alert,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, {
@@ -24,8 +22,9 @@ import type { NavigationProps } from "@/types/navigation";
 import {
   loadChallengeData,
   getDayNumber,
-  recordPhotoForToday,
 } from "@/services/challengeStorage";
+import { useCapturePhoto } from "@/hooks/useCapturePhoto";
+import { CURRENT_LESSON } from "@/data/lessons";
 import { PlatformBlur } from "@/components/PlatformBlur";
 import { BottomNav } from "@/components/BottomNav";
 import {
@@ -44,7 +43,6 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
   const [currentDay, setCurrentDay] = React.useState(1);
   const [streak, setStreak] = React.useState(1);
   const [challengeData, setChallengeData] = React.useState<ChallengeData | null>(null);
-  const [photoUri, setPhotoUri] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     loadChallengeData().then((data) => {
@@ -54,56 +52,13 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
     });
   }, []);
 
-  async function handleTakePhoto() {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert(
-        "Camera access needed",
-        "Allow camera access in Settings to take photos."
-      );
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: "images",
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.92,
-    });
-    if (!result.canceled) {
-      setPhotoUri(result.assets[0].uri);
-      if (challengeData) {
-        const updated = await recordPhotoForToday(challengeData);
-        setChallengeData(updated);
-        setStreak(updated.streak);
-      }
-    }
-  }
-
-  async function handleUploadFromLibrary() {
-    const { status } =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert(
-        "Photo library access needed",
-        "Allow photo library access in Settings to upload photos."
-      );
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: "images",
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.92,
-    });
-    if (!result.canceled) {
-      setPhotoUri(result.assets[0].uri);
-      if (challengeData) {
-        const updated = await recordPhotoForToday(challengeData);
-        setChallengeData(updated);
-        setStreak(updated.streak);
-      }
-    }
-  }
+  const { photoUri, takePhoto, uploadFromLibrary } = useCapturePhoto({
+    challengeData,
+    onChallengeUpdate: (updated) => {
+      setChallengeData(updated);
+      setStreak(updated.streak);
+    },
+  });
 
   /* Streak-Bloom ring math */
   const radius = 34;
@@ -266,21 +221,28 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
           </View>
         </View>
 
-        {/* Daily prompt */}
+        {/* Today's Lesson — entry card (data-driven from CURRENT_LESSON) */}
         <View style={sharedStyles.section}>
-          <Text style={styles.promptHeading}>
-            Capture a food photo using natural light only
-          </Text>
-          <Text style={styles.promptBody}>
-            Find a window, observe the shadows, and highlight the textures of
-            your next meal.
-          </Text>
+          <Pressable
+            style={styles.lessonCard}
+            onPress={() => navigation.navigate("lesson")}
+            accessibilityLabel={`Open lesson: ${CURRENT_LESSON.title}`}
+          >
+            <View style={styles.lessonCardIcon}>
+              <ApertureIcon />
+            </View>
+            <View style={styles.lessonCardBody}>
+              <Text style={sharedStyles.label}>Today's Lesson</Text>
+              <Text style={styles.lessonCardTitle}>{CURRENT_LESSON.title}</Text>
+              <Text style={styles.lessonCardSub}>{CURRENT_LESSON.subtitle}</Text>
+            </View>
+          </Pressable>
         </View>
 
         {/* CTAs */}
         <View style={[sharedStyles.section, styles.ctaSection]}>
           {/* Primary — Take Photo */}
-          <Pressable style={styles.primaryBtn} onPress={handleTakePhoto}>
+          <Pressable style={styles.primaryBtn} onPress={takePhoto}>
             <LinearGradient
               colors={[tokens.primary, tokens.primaryContainer]}
               start={{ x: 0, y: 0 }}
@@ -293,7 +255,7 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
           </Pressable>
 
           {/* Ghost — Upload */}
-          <Pressable style={styles.ghostBtn} onPress={handleUploadFromLibrary}>
+          <Pressable style={styles.ghostBtn} onPress={uploadFromLibrary}>
             <UploadIcon />
             <Text style={styles.ghostBtnText}>Upload from Library</Text>
           </Pressable>

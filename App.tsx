@@ -17,6 +17,8 @@ import {
 import type { ScreenName } from "@/types/navigation";
 import { HomeScreen } from "@/screens/HomeScreen";
 import { GalleryScreen } from "@/screens/GalleryScreen";
+import { LessonScreen } from "@/screens/LessonScreen";
+import { CURRENT_LESSON } from "@/data/lessons";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -43,6 +45,9 @@ export default function App() {
       )}
       {activeScreen === "gallery" && (
         <GalleryScreen navigation={{ navigate }} />
+      )}
+      {activeScreen === "lesson" && (
+        <LessonScreen navigation={{ navigate }} lesson={CURRENT_LESSON} />
       )}
     </SafeAreaProvider>
   );
