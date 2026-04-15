@@ -22,6 +22,8 @@ export type LessonStep = TeachStep | ChallengeStep;
 
 export type Lesson = {
   id: string;
+  /** 1..30 — position within the 30-day challenge. Indexes the lesson registry. */
+  day: number;
   title: string;
   subtitle: string;
   steps: LessonStep[];

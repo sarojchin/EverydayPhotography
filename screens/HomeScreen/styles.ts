@@ -66,72 +66,75 @@ export const styles = StyleSheet.create({
     borderRadius: 3,
   },
 
-  /* ── Photo card ── */
-  photoCard: {
-    aspectRatio: 4 / 3,
-    borderRadius: 24,
+  /* ── Daily lesson hero card ── */
+  heroCard: {
+    aspectRatio: 3 / 4,
+    borderRadius: 28,
     overflow: "hidden",
   },
-  categoryTag: {
-    position: "absolute",
-    bottom: 16,
-    left: 16,
-    borderRadius: 999,
-    overflow: "hidden",
+  heroContent: {
+    flex: 1,
+    padding: 24,
+    justifyContent: "space-between",
   },
-  categoryBlur: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
+  heroBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(255, 255, 255, 0.16)",
     paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingVertical: 6,
+    borderRadius: 999,
   },
-  categoryDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: tokens.primaryContainer,
-  },
-  categoryText: {
+  heroBadgeText: {
     fontFamily: "Inter_500Medium",
     fontSize: 10,
     textTransform: "uppercase",
-    letterSpacing: 1.1,
+    letterSpacing: 1.3,
+    color: "#ffffff",
+  },
+  heroTextBlock: {
+    gap: 8,
+  },
+  heroTitle: {
+    fontFamily: "Manrope_800ExtraBold",
+    fontSize: 34,
+    lineHeight: 38,
+    letterSpacing: -0.68,
+    color: "#ffffff",
+  },
+  heroSubtitle: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 14,
+    lineHeight: 20,
+    color: "rgba(255, 255, 255, 0.78)",
+    marginBottom: 12,
+  },
+  heroCta: {
+    alignSelf: "flex-start",
+    borderRadius: 999,
+    overflow: "hidden",
+    marginTop: 4,
+  },
+  heroCtaGradient: {
+    paddingHorizontal: 22,
+    paddingVertical: 14,
+  },
+  heroCtaText: {
+    fontFamily: "Manrope_700Bold",
+    fontSize: 15,
+    letterSpacing: -0.15,
     color: "#ffffff",
   },
 
-  /* ── Today's Lesson entry card ── */
-  lessonCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    padding: 20,
-    borderRadius: 24,
-    backgroundColor: tokens.surfaceLowest,
+  /* ── View all lessons ghost link ── */
+  viewAllLink: {
+    alignSelf: "center",
+    paddingVertical: 12,
+    marginTop: 8,
   },
-  lessonCardIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: tokens.surfaceHighest,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  lessonCardBody: {
-    flex: 1,
-  },
-  lessonCardTitle: {
-    fontFamily: "Manrope_700Bold",
-    fontSize: 19,
-    letterSpacing: -0.38,
-    color: tokens.onSurface,
-    marginTop: 4,
-  },
-  lessonCardSub: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 13,
-    color: tokens.onSurfaceMuted,
-    marginTop: 2,
+  viewAllLinkText: {
+    fontFamily: "Inter_500Medium",
+    fontSize: 14,
+    color: tokens.primary,
   },
 
   /* ── CTAs ── */

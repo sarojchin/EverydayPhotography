@@ -5,7 +5,6 @@ import {
   ScrollView,
   Pressable,
   StyleSheet,
-  Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,8 +23,7 @@ import {
   getDayNumber,
 } from "@/services/challengeStorage";
 import { useCapturePhoto } from "@/hooks/useCapturePhoto";
-import { CURRENT_LESSON } from "@/data/lessons";
-import { PlatformBlur } from "@/components/PlatformBlur";
+import { getLessonForDay, TOTAL_DAYS } from "@/data/lessons";
 import { BottomNav } from "@/components/BottomNav";
 import {
   ApertureIcon,
@@ -39,7 +37,6 @@ import { styles } from "./styles";
 
 export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
   const insets = useSafeAreaInsets();
-  const totalDays = 30;
   const [currentDay, setCurrentDay] = React.useState(1);
   const [streak, setStreak] = React.useState(1);
   const [challengeData, setChallengeData] = React.useState<ChallengeData | null>(null);
@@ -52,7 +49,7 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
     });
   }, []);
 
-  const { photoUri, takePhoto, uploadFromLibrary } = useCapturePhoto({
+  const { takePhoto, uploadFromLibrary } = useCapturePhoto({
     challengeData,
     onChallengeUpdate: (updated) => {
       setChallengeData(updated);
@@ -64,7 +61,11 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
   const radius = 34;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset =
-    circumference - (currentDay / totalDays) * circumference;
+    circumference - (currentDay / TOTAL_DAYS) * circumference;
+
+  /* Today's lesson (may be null if content for currentDay isn't authored yet) */
+  const todaysLesson = getLessonForDay(currentDay);
+  const heroReady = challengeData !== null && todaysLesson !== null;
 
   return (
     <View style={[sharedStyles.root, { paddingTop: insets.top }]}>
@@ -95,7 +96,7 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
             })}
           </Text>
           <Text style={styles.dayHeading}>
-            Day {currentDay} of {totalDays}
+            Day {currentDay} of {TOTAL_DAYS}
           </Text>
         </View>
 
@@ -146,7 +147,7 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
             </Svg>
             <View style={styles.ringLabel}>
               <Text style={styles.ringText}>
-                {currentDay}/{totalDays}
+                {currentDay}/{TOTAL_DAYS}
               </Text>
             </View>
           </View>
@@ -157,7 +158,7 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
           <View style={styles.progressHeader}>
             <Text style={sharedStyles.label}>Progress</Text>
             <Text style={sharedStyles.label}>
-              {currentDay}/{totalDays}
+              {currentDay}/{TOTAL_DAYS}
             </Text>
           </View>
           <View style={styles.progressTrack}>
@@ -167,75 +168,91 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
               end={{ x: 1, y: 0 }}
               style={[
                 styles.progressFill,
-                { width: `${(currentDay / totalDays) * 100}%` as never },
+                { width: `${(currentDay / TOTAL_DAYS) * 100}%` as never },
               ]}
             />
           </View>
         </View>
 
-        {/* Photo card */}
-        <View style={sharedStyles.section}>
-          <View style={styles.photoCard}>
-            {photoUri ? (
-              <Image
-                source={{ uri: photoUri }}
-                style={StyleSheet.absoluteFill}
-                resizeMode="cover"
-              />
-            ) : (
-              <>
-                <LinearGradient
-                  colors={["#5C4033", "#6B8E23", "#8B7355", "#A0522D"]}
-                  locations={[0, 0.35, 0.65, 1]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={StyleSheet.absoluteFill}
-                />
-                {/* Warm overlay accents */}
-                <LinearGradient
-                  colors={[
-                    "rgba(107,142,35,0.5)",
-                    "transparent",
-                    "rgba(255,200,60,0.35)",
-                    "transparent",
-                  ]}
-                  locations={[0, 0.4, 0.6, 1]}
-                  start={{ x: 0.3, y: 0.3 }}
-                  end={{ x: 0.8, y: 0.8 }}
-                  style={StyleSheet.absoluteFill}
-                />
-              </>
-            )}
-
-            {/* FOOD category tag */}
-            <View style={styles.categoryTag}>
-              <PlatformBlur
-                intensity={40}
-                tint="dark"
-                style={styles.categoryBlur}
-              >
-                <View style={styles.categoryDot} />
-                <Text style={styles.categoryText}>Food</Text>
-              </PlatformBlur>
-            </View>
-          </View>
-        </View>
-
-        {/* Today's Lesson — entry card (data-driven from CURRENT_LESSON) */}
+        {/* Daily lesson hero card */}
         <View style={sharedStyles.section}>
           <Pressable
-            style={styles.lessonCard}
-            onPress={() => navigation.navigate("lesson")}
-            accessibilityLabel={`Open lesson: ${CURRENT_LESSON.title}`}
+            style={styles.heroCard}
+            onPress={() => heroReady && navigation.openLesson(currentDay)}
+            disabled={!heroReady}
+            accessibilityLabel={
+              todaysLesson
+                ? `Start today's lesson: ${todaysLesson.title}`
+                : "Today's lesson"
+            }
           >
-            <View style={styles.lessonCardIcon}>
-              <ApertureIcon />
+            {/* Base warm gradient (same palette as the Light & Angle illustration) */}
+            <LinearGradient
+              colors={["#FFD59E", "#FFB066", "#A66A3A", "#4A2F1F"]}
+              locations={[0, 0.35, 0.7, 1]}
+              start={{ x: 0.2, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+            {/* Soft warm accent overlay for depth */}
+            <LinearGradient
+              colors={[
+                "rgba(255, 220, 160, 0.35)",
+                "transparent",
+                "transparent",
+                "rgba(0, 0, 0, 0.25)",
+              ]}
+              locations={[0, 0.3, 0.7, 1]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+
+            <View style={styles.heroContent}>
+              {/* Top pill */}
+              <View style={styles.heroBadge}>
+                <Text style={styles.heroBadgeText}>Today's Lesson</Text>
+              </View>
+
+              {/* Title + subtitle sit near the lower third */}
+              <View style={styles.heroTextBlock}>
+                <Text style={styles.heroTitle}>
+                  {todaysLesson?.title ?? "Coming soon"}
+                </Text>
+                <Text style={styles.heroSubtitle}>
+                  {todaysLesson?.subtitle ??
+                    "New lessons unlock each day of your challenge."}
+                </Text>
+
+                {/* CTA */}
+                <Pressable
+                  style={styles.heroCta}
+                  onPress={() =>
+                    heroReady && navigation.openLesson(currentDay)
+                  }
+                  disabled={!heroReady}
+                >
+                  <LinearGradient
+                    colors={[tokens.primary, tokens.primaryContainer]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.heroCtaGradient}
+                  >
+                    <Text style={styles.heroCtaText}>
+                      {todaysLesson ? "Start today's lesson" : "Coming soon"}
+                    </Text>
+                  </LinearGradient>
+                </Pressable>
+              </View>
             </View>
-            <View style={styles.lessonCardBody}>
-              <Text style={sharedStyles.label}>Today's Lesson</Text>
-              <Text style={styles.lessonCardTitle}>{CURRENT_LESSON.title}</Text>
-              <Text style={styles.lessonCardSub}>{CURRENT_LESSON.subtitle}</Text>
-            </View>
+          </Pressable>
+
+          {/* View all lessons link */}
+          <Pressable
+            style={styles.viewAllLink}
+            onPress={() => navigation.navigate("lessons")}
+          >
+            <Text style={styles.viewAllLinkText}>View all lessons</Text>
           </Pressable>
         </View>
 

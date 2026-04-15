@@ -27,8 +27,8 @@ types/lesson.ts                     Lesson, LessonStep (TeachStep | ChallengeSte
 services/challengeStorage.ts        Persistence: load/record challenge data
 hooks/useCapturePhoto.ts            Shared camera/library capture + streak recording
 data/galleryMockPhotos.ts           GALLERY_MOCK_PHOTOS array
-data/lessons/lightingLesson.ts      Light & Angle lesson content (edit to change copy)
-data/lessons/index.ts               Barrel — exports CURRENT_LESSON (swap here to change lesson)
+data/lessons/lightingLesson.ts      Light & Angle lesson content (Day 1)
+data/lessons/index.ts               Lesson registry: LESSONS[], TOTAL_DAYS, getLessonForDay, isLessonUnlocked
 components/PlatformBlur.tsx         Cross-platform blur wrapper
 components/BottomNav.tsx            Shared bottom tab bar
 components/icons/index.ts           Barrel — re-exports all icons
@@ -42,6 +42,8 @@ screens/LessonScreen/index.tsx      Generic lesson renderer (accepts lesson: Les
 screens/LessonScreen/styles.ts      Lesson-only styles
 screens/LessonScreen/steps/TeachStep.tsx      Renders kind:"teach" step
 screens/LessonScreen/steps/ChallengeStep.tsx  Renders kind:"challenge" step
+screens/LessonsScreen/index.tsx     All-lessons browse list (30 days, completed/today/locked)
+screens/LessonsScreen/styles.ts     Lessons-list styles
 styles/shared.ts                    Shared layout styles (root, header, scroll, section, nav)
 design/DESIGN.md                    Full design system spec — READ before any UI work
 design/home.png                     Home screen mockup
@@ -67,7 +69,8 @@ import { useCapturePhoto } from "@/hooks/useCapturePhoto";
 
 // Data
 import { GALLERY_MOCK_PHOTOS } from "@/data/galleryMockPhotos";
-import { CURRENT_LESSON } from "@/data/lessons";
+import { LESSONS, TOTAL_DAYS, getLessonForDay, isLessonUnlocked } from "@/data/lessons";
+// `CURRENT_LESSON` is deprecated — use `getLessonForDay(currentDay)` instead
 
 // Components
 import { PlatformBlur } from "@/components/PlatformBlur";
@@ -102,7 +105,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 ```typescript
 // Every screen receives this:
-{ navigation: NavigationProps }  // where NavigationProps = { navigate: (screen: ScreenName) => void }
+{ navigation: NavigationProps }
+// NavigationProps = {
+//   navigate: (screen: ScreenName) => void,
+//   openLesson: (day: number) => void,   // sets selected lesson day in App state + switches to "lesson"
+// }
 
 // BottomNav
 { activeScreen: ScreenName, navigate: (screen: ScreenName) => void, bottomInset: number }
@@ -123,9 +130,11 @@ GalleryIcon({ active?: boolean })  // fills + full opacity when active
 
 ## Navigation
 
-State-based, no library. `App.tsx` holds `activeScreen: ScreenName` and passes `{ navigate }` to each screen. `BottomNav` is a shared component included by each screen.
+State-based, no library. `App.tsx` holds `activeScreen: ScreenName` plus `selectedLessonDay: number | null`. Screens receive `{ navigate, openLesson }`. `openLesson(day)` sets the selected day and switches to `"lesson"` — the specific lesson is resolved at render time via `getLessonForDay(selectedLessonDay)`. If the day has no authored content, `App.tsx` falls back to Home. `BottomNav` is a shared component included by each screen.
 
-**Current `ScreenName` values:** `"home" | "gallery" | "lesson"`
+**Current `ScreenName` values:** `"home" | "gallery" | "lesson" | "lessons"`
+- `"lesson"` — reading a specific day's lesson (requires `selectedLessonDay`)
+- `"lessons"` — browsing all 30 days (completed / today / locked)
 
 ## Recipes
 
@@ -171,18 +180,21 @@ State-based, no library. `App.tsx` holds `activeScreen: ScreenName` and passes `
 1. Add to existing file in `types/` or create new `types/name.ts`
 2. Import as `import type { TypeName } from "@/types/name"`
 
-### Edit the Home lesson
+### Add / edit a daily lesson
 
-Content and screen rendering are fully decoupled. `LessonScreen` reads everything from the `lesson: Lesson` prop it receives.
+Content and screen rendering are fully decoupled. `LessonScreen` reads everything from the `lesson: Lesson` prop it receives. Lessons are day-indexed (1..30). Days without content render as **locked** in the UI; `isLessonUnlocked(day, currentDay)` enforces that future days are locked regardless.
 
-1. **Change copy, gradients, or shots:** edit `data/lessons/lightingLesson.ts` only. No code changes.
-2. **Swap in a different lesson:** create `data/lessons/<name>Lesson.ts`, then change the `CURRENT_LESSON` re-export in `data/lessons/index.ts` to point at it. `App.tsx` and `HomeScreen` read via `CURRENT_LESSON` so they stay in sync.
+1. **Change copy/gradients/shots of an existing lesson:** edit its `data/lessons/<name>Lesson.ts` file only.
+2. **Add a new day's lesson:**
+   - Create `data/lessons/<name>Lesson.ts`. Set `day: <N>` (1..30) and the other `Lesson` fields.
+   - In `data/lessons/index.ts`, import it and add it to the `LESSONS` array. That's it — it automatically appears in the home hero (if today), and in the Lessons list with the correct lock state.
 3. **Add a new step kind (e.g., "quiz"):**
    - Extend `LessonStep` in `types/lesson.ts` with a new `kind` variant
    - Add `screens/LessonScreen/steps/QuizStep.tsx` (pure presentational component, props typed to the new variant)
    - Add one `case "quiz":` branch to `renderStep()` in `screens/LessonScreen/index.tsx`
    - The `never` default asserts exhaustiveness at compile time
 4. **Adjust header / progress pills / footer CTAs:** edit `screens/LessonScreen/index.tsx` only — affects every lesson uniformly.
+5. **Lesson lock semantics:** `isLessonUnlocked(day, currentDay) === true` iff `day <= currentDay` AND `getLessonForDay(day) !== null`. Change in `data/lessons/index.ts` if the product rule changes.
 
 ## Gotchas
 
@@ -199,10 +211,12 @@ Content and screen rendering are fully decoupled. `LessonScreen` reads everythin
 ## Dependency Graph (what touches what)
 
 ```
-App.tsx ──→ types/navigation, screens/*, data/lessons
+App.tsx ──→ types/navigation, screens/*, data/lessons (getLessonForDay)
 screens/* ──→ types/*, services/*, hooks/*, data/*, components/*, styles/shared, ./styles
+screens/HomeScreen ──→ data/lessons (getLessonForDay, TOTAL_DAYS), services/challengeStorage, hooks/useCapturePhoto
 screens/LessonScreen ──→ types/lesson, hooks/useCapturePhoto, components/icons, ./steps/*
 screens/LessonScreen/steps/* ──→ types/lesson, styles/shared, ../styles
+screens/LessonsScreen ──→ data/lessons (getLessonForDay, isLessonUnlocked, TOTAL_DAYS), services/challengeStorage
 components/BottomNav ──→ components/PlatformBlur, components/icons, styles/shared, types/navigation
 components/icons/* ──→ react-native-svg, constants/tokens
 styles/shared ──→ constants/tokens
@@ -210,6 +224,7 @@ services/challengeStorage ──→ expo-file-system/legacy, types/challenge
 hooks/useCapturePhoto ──→ expo-image-picker, services/challengeStorage, types/challenge
 data/galleryMockPhotos ──→ types/gallery
 data/lessons/lightingLesson ──→ types/lesson
+data/lessons/index ──→ types/lesson, ./lightingLesson
 ```
 
 **If you change `types/navigation.ts`** → may affect: App.tsx, all screens, BottomNav

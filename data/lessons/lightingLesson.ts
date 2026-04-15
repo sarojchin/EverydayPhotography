@@ -9,6 +9,7 @@ import type { Lesson } from "@/types/lesson";
  */
 export const LIGHTING_LESSON: Lesson = {
   id: "light-and-angle",
+  day: 1,
   title: "Light & Angle",
   subtitle: "3 quick screens · 2 min",
   steps: [
