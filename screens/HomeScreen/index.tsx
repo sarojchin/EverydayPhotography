@@ -183,7 +183,7 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
             accessibilityLabel={
               todaysLesson
                 ? `Start today's lesson: ${todaysLesson.title}`
-                : "Today's lesson"
+                : "Today's lesson — coming soon"
             }
           >
             {/* Base warm gradient (same palette as the Light & Angle illustration) */}
@@ -214,7 +214,7 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
                 <Text style={styles.heroBadgeText}>Today's Lesson</Text>
               </View>
 
-              {/* Title + subtitle sit near the lower third */}
+              {/* Centered title + subtitle */}
               <View style={styles.heroTextBlock}>
                 <Text style={styles.heroTitle}>
                   {todaysLesson?.title ?? "Coming soon"}
@@ -223,27 +223,27 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
                   {todaysLesson?.subtitle ??
                     "New lessons unlock each day of your challenge."}
                 </Text>
-
-                {/* CTA */}
-                <Pressable
-                  style={styles.heroCta}
-                  onPress={() =>
-                    heroReady && navigation.openLesson(currentDay)
-                  }
-                  disabled={!heroReady}
-                >
-                  <LinearGradient
-                    colors={[tokens.primary, tokens.primaryContainer]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.heroCtaGradient}
-                  >
-                    <Text style={styles.heroCtaText}>
-                      {todaysLesson ? "Start today's lesson" : "Coming soon"}
-                    </Text>
-                  </LinearGradient>
-                </Pressable>
               </View>
+
+              {/* CTA */}
+              <Pressable
+                style={styles.heroCta}
+                onPress={() =>
+                  heroReady && navigation.openLesson(currentDay)
+                }
+                disabled={!heroReady}
+              >
+                <LinearGradient
+                  colors={[tokens.primary, tokens.primaryContainer]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.heroCtaGradient}
+                >
+                  <Text style={styles.heroCtaText}>
+                    {todaysLesson ? "Start now" : "Coming soon"}
+                  </Text>
+                </LinearGradient>
+              </Pressable>
             </View>
           </Pressable>
 

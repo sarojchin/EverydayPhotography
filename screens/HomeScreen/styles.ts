@@ -74,12 +74,13 @@ export const styles = StyleSheet.create({
   },
   heroContent: {
     flex: 1,
-    padding: 24,
-    justifyContent: "space-between",
+    padding: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 16,
   },
   heroBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(255, 255, 255, 0.16)",
+    backgroundColor: "rgba(255, 255, 255, 0.18)",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
@@ -92,7 +93,8 @@ export const styles = StyleSheet.create({
     color: "#ffffff",
   },
   heroTextBlock: {
-    gap: 8,
+    alignItems: "center",
+    gap: 10,
   },
   heroTitle: {
     fontFamily: "Manrope_800ExtraBold",
@@ -100,22 +102,22 @@ export const styles = StyleSheet.create({
     lineHeight: 38,
     letterSpacing: -0.68,
     color: "#ffffff",
+    textAlign: "center",
   },
   heroSubtitle: {
     fontFamily: "Inter_400Regular",
     fontSize: 14,
     lineHeight: 20,
-    color: "rgba(255, 255, 255, 0.78)",
-    marginBottom: 12,
+    color: "rgba(255, 255, 255, 0.82)",
+    textAlign: "center",
   },
   heroCta: {
-    alignSelf: "flex-start",
     borderRadius: 999,
     overflow: "hidden",
-    marginTop: 4,
+    marginTop: 8,
   },
   heroCtaGradient: {
-    paddingHorizontal: 22,
+    paddingHorizontal: 28,
     paddingVertical: 14,
   },
   heroCtaText: {
@@ -123,6 +125,7 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     letterSpacing: -0.15,
     color: "#ffffff",
+    textAlign: "center",
   },
 
   /* ── View all lessons ghost link ── */
