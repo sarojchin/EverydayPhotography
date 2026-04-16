@@ -63,9 +63,10 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
   const strokeDashoffset =
     circumference - (currentDay / TOTAL_DAYS) * circumference;
 
-  /* Today's lesson (may be null if content for currentDay isn't authored yet) */
-  const todaysLesson = getLessonForDay(currentDay);
-  const heroReady = challengeData !== null && todaysLesson !== null;
+  /* Today's lesson — falls back to day 1 if current day has no authored content yet */
+  const todaysLesson = getLessonForDay(currentDay) ?? getLessonForDay(1);
+  const heroLessonDay = getLessonForDay(currentDay) !== null ? currentDay : 1;
+  const heroReady = challengeData !== null;
 
   return (
     <View style={[sharedStyles.root, { paddingTop: insets.top }]}>
@@ -178,7 +179,7 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
         <View style={sharedStyles.section}>
           <Pressable
             style={styles.heroCard}
-            onPress={() => heroReady && navigation.openLesson(currentDay)}
+            onPress={() => heroReady && navigation.openLesson(heroLessonDay)}
             disabled={!heroReady}
             accessibilityLabel={
               todaysLesson
@@ -229,7 +230,7 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
               <Pressable
                 style={styles.heroCta}
                 onPress={() =>
-                  heroReady && navigation.openLesson(currentDay)
+                  heroReady && navigation.openLesson(heroLessonDay)
                 }
                 disabled={!heroReady}
               >
