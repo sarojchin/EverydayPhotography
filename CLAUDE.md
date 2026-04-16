@@ -27,8 +27,9 @@ types/lesson.ts                     Lesson, LessonStep (TeachStep | ChallengeSte
 services/challengeStorage.ts        Persistence: load/record challenge data
 hooks/useCapturePhoto.ts            Shared camera/library capture + streak recording
 data/galleryMockPhotos.ts           GALLERY_MOCK_PHOTOS array
-data/lessons/lightingLesson.ts      Light & Angle lesson content (Day 1)
 data/lessons/index.ts               Lesson registry: LESSONS[], TOTAL_DAYS, getLessonForDay, isLessonUnlocked
+data/lessons/days/day01.ts          Selfies: Lighting and Angles (Day 1)
+data/lessons/days/day<NN>.ts        Pattern for future lessons — one file per day, named day02.ts … day30.ts
 components/PlatformBlur.tsx         Cross-platform blur wrapper
 components/BottomNav.tsx            Shared bottom tab bar
 components/icons/index.ts           Barrel — re-exports all icons
@@ -70,7 +71,6 @@ import { useCapturePhoto } from "@/hooks/useCapturePhoto";
 // Data
 import { GALLERY_MOCK_PHOTOS } from "@/data/galleryMockPhotos";
 import { LESSONS, TOTAL_DAYS, getLessonForDay, isLessonUnlocked } from "@/data/lessons";
-// `CURRENT_LESSON` is deprecated — use `getLessonForDay(currentDay)` instead
 
 // Components
 import { PlatformBlur } from "@/components/PlatformBlur";
@@ -184,9 +184,9 @@ State-based, no library. `App.tsx` holds `activeScreen: ScreenName` plus `select
 
 Content and screen rendering are fully decoupled. `LessonScreen` reads everything from the `lesson: Lesson` prop it receives. Lessons are day-indexed (1..30). Days without content render as **locked** in the UI; `isLessonUnlocked(day, currentDay)` enforces that future days are locked regardless.
 
-1. **Change copy/gradients/shots of an existing lesson:** edit its `data/lessons/<name>Lesson.ts` file only.
+1. **Change copy/gradients/shots of an existing lesson:** edit its `data/lessons/days/day<NN>.ts` file only.
 2. **Add a new day's lesson:**
-   - Create `data/lessons/<name>Lesson.ts`. Set `day: <N>` (1..30) and the other `Lesson` fields.
+   - Create `data/lessons/days/day<NN>.ts` (e.g. `day02.ts`). Set `day: <N>` (1..30) and the other `Lesson` fields. Export a named const like `DAY_02_LESSON`.
    - In `data/lessons/index.ts`, import it and add it to the `LESSONS` array. That's it — it automatically appears in the home hero (if today), and in the Lessons list with the correct lock state.
 3. **Add a new step kind (e.g., "quiz"):**
    - Extend `LessonStep` in `types/lesson.ts` with a new `kind` variant
@@ -223,8 +223,8 @@ styles/shared ──→ constants/tokens
 services/challengeStorage ──→ expo-file-system/legacy, types/challenge
 hooks/useCapturePhoto ──→ expo-image-picker, services/challengeStorage, types/challenge
 data/galleryMockPhotos ──→ types/gallery
-data/lessons/lightingLesson ──→ types/lesson
-data/lessons/index ──→ types/lesson, ./lightingLesson
+data/lessons/days/day01 ──→ types/lesson
+data/lessons/index ──→ types/lesson, ./days/day01 (and future ./days/day<NN> files)
 ```
 
 **If you change `types/navigation.ts`** → may affect: App.tsx, all screens, BottomNav
