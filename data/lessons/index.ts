@@ -11,11 +11,23 @@
  */
 import type { Lesson } from "@/types/lesson";
 import { DAY_01_LESSON } from "./days/day01";
+import { DAY_02_LESSON } from "./days/day02";
+import { DAY_03_LESSON } from "./days/day03";
+import { DAY_04_LESSON } from "./days/day04";
+import { DAY_05_LESSON } from "./days/day05";
+import { DAY_06_LESSON } from "./days/day06";
+import { DAY_07_LESSON } from "./days/day07";
+import { DAY_08_LESSON } from "./days/day08";
+import { DAY_09_LESSON } from "./days/day09";
+import { DAY_10_LESSON } from "./days/day10";
 
 export const TOTAL_DAYS = 30;
 
 /** Ordered registry of authored lessons. */
-export const LESSONS: Lesson[] = [DAY_01_LESSON];
+export const LESSONS: Lesson[] = [
+  DAY_01_LESSON, DAY_02_LESSON, DAY_03_LESSON, DAY_04_LESSON, DAY_05_LESSON,
+  DAY_06_LESSON, DAY_07_LESSON, DAY_08_LESSON, DAY_09_LESSON, DAY_10_LESSON,
+];
 
 const LESSONS_BY_DAY: Record<number, Lesson> = Object.fromEntries(
   LESSONS.map((l) => [l.day, l]),
