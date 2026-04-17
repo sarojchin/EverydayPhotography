@@ -6,3 +6,4 @@ export { UploadIcon } from "./UploadIcon";
 export { HomeIcon } from "./HomeIcon";
 export { GalleryIcon } from "./GalleryIcon";
 export { CameraNavIcon } from "./CameraNavIcon";
+export { BookIcon } from "./BookIcon";

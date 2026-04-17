@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, Text } from "react-native";
 import { PlatformBlur } from "@/components/PlatformBlur";
-import { HomeIcon, GalleryIcon, CameraNavIcon } from "@/components/icons";
+import { HomeIcon, GalleryIcon, CameraNavIcon, BookIcon } from "@/components/icons";
 import { sharedStyles } from "@/styles/shared";
 import type { ScreenName } from "@/types/navigation";
 
@@ -46,6 +46,17 @@ export function BottomNav({ activeScreen, navigate, bottomInset }: BottomNavProp
       <Pressable style={sharedStyles.navItem}>
         <CameraNavIcon />
         <Text style={sharedStyles.navLabel}>Photos</Text>
+      </Pressable>
+      <Pressable style={sharedStyles.navItem} onPress={() => navigate("lessons")}>
+        <BookIcon active={activeScreen === "lessons"} />
+        <Text
+          style={[
+            sharedStyles.navLabel,
+            activeScreen === "lessons" && sharedStyles.navLabelActive,
+          ]}
+        >
+          Lessons
+        </Text>
       </Pressable>
     </PlatformBlur>
   );
