@@ -40,7 +40,7 @@ export const styles = StyleSheet.create({
 
   /* ── Teach: illustration gradient card ── */
   gradientCard: {
-    aspectRatio: 4 / 3,
+    aspectRatio: 3 / 4,
     borderRadius: 24,
     overflow: "hidden",
   },
