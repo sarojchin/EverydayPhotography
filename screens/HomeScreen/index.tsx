@@ -212,7 +212,7 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
             {todaysLesson?.coverImage && (
               <Image
                 source={todaysLesson.coverImage}
-                style={[StyleSheet.absoluteFill, { opacity: 0.55 }]}
+                style={{ position: "absolute", width: "100%", height: "100%", opacity: 0.55 }}
                 resizeMode="cover"
               />
             )}
