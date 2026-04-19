@@ -207,6 +207,7 @@ Content and screen rendering are fully decoupled. `LessonScreen` reads everythin
 - **No borders:** Design system prohibits 1px borders. Use surface color shifts. See `design/DESIGN.md`.
 - **No shadows:** Use tonal layering. Never `rgba(0,0,0,...)` box shadows.
 - **Path alias:** Always use `@/` for cross-directory imports. Relative `./` only for same-directory (e.g., `./styles`, `./GalleryCard`).
+- **Lesson step images:** Use `Image` (not `View`) with `style={styles.imageCard}` and `resizeMode="cover"`. The `imageCard` style uses `height: SCREEN_HEIGHT * 0.32` + `aspectRatio: 1` + `alignSelf: "center"` — this matches the square source photos (1024×1024) with no cropping and fits comfortably on any phone. Do NOT use `width: "100%"` on `Image` components without an explicit height; they will render at native resolution and overflow the screen.
 
 ## Dependency Graph (what touches what)
 
