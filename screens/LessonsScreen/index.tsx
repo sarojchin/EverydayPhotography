@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, Image, ScrollView, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { NavigationProps } from "@/types/navigation";
@@ -87,16 +87,34 @@ export function LessonsScreen({ navigation }: { navigation: NavigationProps }) {
                     : `Day ${day} locked`
                 }
               >
-                <View style={styles.rowDayBlock}>
-                  <Text
-                    style={[
-                      styles.rowDayLabel,
-                      state === "locked" && styles.textMuted,
-                    ]}
-                  >
-                    Day {day}
-                  </Text>
-                </View>
+                {lesson?.coverImage ? (
+                  <View style={styles.thumbnailBlock}>
+                    <Image
+                      source={lesson.coverImage}
+                      style={styles.thumbnail}
+                      resizeMode="cover"
+                    />
+                    <Text
+                      style={[
+                        styles.rowDayLabel,
+                        state === "locked" && styles.textMuted,
+                      ]}
+                    >
+                      Day {day}
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={styles.rowDayBlock}>
+                    <Text
+                      style={[
+                        styles.rowDayLabel,
+                        state === "locked" && styles.textMuted,
+                      ]}
+                    >
+                      Day {day}
+                    </Text>
+                  </View>
+                )}
 
                 <View style={styles.rowBody}>
                   <Text

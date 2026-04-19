@@ -39,6 +39,17 @@ export const styles = StyleSheet.create({
   rowDayBlock: {
     width: 52,
   },
+  thumbnailBlock: {
+    alignItems: "center",
+    gap: 4,
+    width: 56,
+  },
+  thumbnail: {
+    width: 56,
+    height: 56,
+    borderRadius: 10,
+    overflow: "hidden",
+  },
   rowDayLabel: {
     fontFamily: "Manrope_700Bold",
     fontSize: 13,

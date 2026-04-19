@@ -2,6 +2,7 @@ import React from "react";
 import {
   View,
   Text,
+  Image,
   ScrollView,
   Pressable,
   StyleSheet,
@@ -208,6 +209,13 @@ export function HomeScreen({ navigation }: { navigation: NavigationProps }) {
               end={{ x: 0.5, y: 1 }}
               style={StyleSheet.absoluteFill}
             />
+            {todaysLesson?.coverImage && (
+              <Image
+                source={todaysLesson.coverImage}
+                style={[StyleSheet.absoluteFill, { opacity: 0.55 }]}
+                resizeMode="cover"
+              />
+            )}
 
             <View style={styles.heroContent}>
               {/* Top pill */}

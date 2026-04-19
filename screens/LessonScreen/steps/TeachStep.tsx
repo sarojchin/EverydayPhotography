@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 import type { TeachStep as TeachStepData } from "@/types/lesson";
@@ -35,6 +35,13 @@ export function TeachStep({ step }: { step: TeachStepData }) {
             end={{ x: 0.8, y: 0.8 }}
             style={StyleSheet.absoluteFill}
           />
+          {step.image && (
+            <Image
+              source={step.image}
+              style={StyleSheet.absoluteFill}
+              resizeMode="cover"
+            />
+          )}
         </View>
       </View>
 

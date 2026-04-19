@@ -3,12 +3,16 @@
  * by editing a data module only.
  */
 
+import type { ImageSourcePropType } from "react-native";
+
 export type TeachStep = {
   kind: "teach";
   title: string;
   body: string;
-  /** Four-stop gradient used for the illustration card (same recipe as HomeScreen's photo card). */
+  /** Four-stop gradient used as the illustration card background (shown when no image, or as underlay). */
   gradient: readonly [string, string, string, string];
+  /** Optional photo shown inside the illustration card, filling it with resizeMode "cover". */
+  image?: ImageSourcePropType;
 };
 
 export type ChallengeStep = {
@@ -26,5 +30,7 @@ export type Lesson = {
   day: number;
   title: string;
   subtitle: string;
+  /** Representative photo used for the HomeScreen hero and LessonsScreen thumbnail. */
+  coverImage?: ImageSourcePropType;
   steps: LessonStep[];
 };
