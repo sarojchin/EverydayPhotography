@@ -47,8 +47,9 @@ export const styles = StyleSheet.create({
     overflow: "hidden",
   },
   imageCard: {
-    width: "100%",
-    height: SCREEN_HEIGHT * 0.22,
+    height: SCREEN_HEIGHT * 0.32,
+    aspectRatio: 1,
+    alignSelf: "center",
     borderRadius: 24,
     overflow: "hidden",
   },
