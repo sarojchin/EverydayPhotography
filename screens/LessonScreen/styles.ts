@@ -45,6 +45,7 @@ export const styles = StyleSheet.create({
     overflow: "hidden",
   },
   imageCard: {
+    width: "100%",
     aspectRatio: 1,
     borderRadius: 24,
     overflow: "hidden",
