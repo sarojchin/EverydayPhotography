@@ -15,7 +15,7 @@ export function TeachStep({ step }: { step: TeachStepData }) {
     <>
       <View style={sharedStyles.section}>
         {step.image ? (
-          <Image source={step.image} style={styles.gradientCard} resizeMode="cover" />
+          <Image source={step.image} style={styles.imageCard} resizeMode="cover" />
         ) : (
           <View style={styles.gradientCard}>
             <LinearGradient

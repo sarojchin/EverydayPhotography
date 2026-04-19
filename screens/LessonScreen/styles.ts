@@ -44,6 +44,11 @@ export const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: "hidden",
   },
+  imageCard: {
+    aspectRatio: 1,
+    borderRadius: 24,
+    overflow: "hidden",
+  },
 
   /* ── Challenge: shots list card ── */
   challengeIntro: {
