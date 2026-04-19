@@ -11,7 +11,7 @@ export const DAY_03_LESSON: Lesson = {
       title: "Same Face, Different Result",
       body: "Angle changes proportions instantly.",
       gradient: ["#FCE4EC", "#F8BBD0", "#C2185B", "#880E4F"],
-      image: require("@/assets/lessons/day03/angles.png"),
+      image: require("@/assets/Lessons/day03/angles.png"),
     },
     {
       kind: "teach",

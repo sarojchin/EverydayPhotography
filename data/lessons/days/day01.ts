@@ -17,14 +17,14 @@ export const DAY_01_LESSON: Lesson = {
       title: "Front Window Light",
       body: "Stand facing a window so the light hits your face directly. Hold your phone slightly above eye level and look toward the camera. Take a few photos without moving much.\n\nThis works because the light covers your whole face evenly. There are no strong shadows, so your skin looks smoother and your eyes look brighter. Everything appears clear and easy to see.\n\nLook at your photos and notice how balanced your face looks. Nothing stands out in a harsh way. This is the most reliable setup—if you're unsure what to do, start here.",
       gradient: ["#FFF3E0", "#FFCC80", "#FF9800", "#E65100"],
-      image: require("@/assets/lessons/day01/front-window-light.png"),
+      image: require("@/assets/Lessons/day01/front-window-light.png"),
     },
     {
       kind: "teach",
       title: "Side Window Light",
       body: "Now stand so the window is on your left or right side. Turn your face slightly toward the light—not fully, just a little—so both sides of your face are still visible. Take a few photos and adjust your position as you go.\n\nThis works because the light hits one side of your face more than the other. That difference helps your features stand out more—your jawline and cheekbones become more noticeable.\n\nPay attention to the darker side of your face. If it looks too dark, turn a bit more toward the window. Small changes here can quickly improve the photo.",
       gradient: ["#FFB74D", "#EF6C00", "#37474F", "#263238"],
-      image: require("@/assets/lessons/day01/side-window-light.png"),
+      image: require("@/assets/Lessons/day01/side-window-light.png"),
     },
     {
       kind: "teach",
