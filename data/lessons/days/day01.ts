@@ -31,6 +31,7 @@ export const DAY_01_LESSON: Lesson = {
       title: "Pose",
       body: "Keep your lighting the same, then adjust how you're standing. Don't face the camera straight on—turn your body slightly to the side. Push your chin forward a little, then lower it slightly. Keep your face relaxed.\n\nTake several photos while making small changes—move the phone higher or lower, shift your angle, or slightly change your expression.\n\nThis works because facing the camera straight on can look stiff. Turning a little makes your face look more natural and flattering. Small movements matter more than big ones.\n\nFocus on this order: get the light right first, then adjust your angle, then your pose.",
       gradient: ["#D7CCC8", "#A1887F", "#6D4C41", "#3E2723"],
+      image: require("@/assets/Lessons/day01/pose.png"),
     },
   ],
 };
