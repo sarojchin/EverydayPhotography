@@ -1,5 +1,7 @@
-import { StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 import * as tokens from "@/constants/tokens";
+
+const SCREEN_HEIGHT = Dimensions.get("window").height;
 
 export const styles = StyleSheet.create({
   /* ── Progress pills (header right) ── */
@@ -45,11 +47,10 @@ export const styles = StyleSheet.create({
     overflow: "hidden",
   },
   imageCard: {
-    width: "60%",
-    aspectRatio: 4 / 3,
+    width: "100%",
+    height: SCREEN_HEIGHT * 0.22,
     borderRadius: 24,
     overflow: "hidden",
-    alignSelf: "center",
   },
 
   /* ── Challenge: shots list card ── */
