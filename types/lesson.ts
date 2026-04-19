@@ -9,6 +9,8 @@ export type TeachStep = {
   body: string;
   /** Four-stop gradient used for the illustration card (same recipe as HomeScreen's photo card). */
   gradient: readonly [string, string, string, string];
+  /** Optional local image asset. When present, replaces the gradient card with a photo. Use require(). */
+  image?: ReturnType<typeof require>;
 };
 
 export type ChallengeStep = {
