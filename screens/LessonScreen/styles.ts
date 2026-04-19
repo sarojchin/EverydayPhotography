@@ -45,10 +45,11 @@ export const styles = StyleSheet.create({
     overflow: "hidden",
   },
   imageCard: {
-    width: "100%",
+    width: "60%",
     aspectRatio: 4 / 3,
     borderRadius: 24,
     overflow: "hidden",
+    alignSelf: "center",
   },
 
   /* ── Challenge: shots list card ── */
