@@ -18,6 +18,8 @@ export type ChallengeStep = {
   title: string;
   intro: string;
   shots: string[];
+  /** Optional local image asset shown above the shots list. Use require(). */
+  image?: ReturnType<typeof require>;
 };
 
 export type LessonStep = TeachStep | ChallengeStep;

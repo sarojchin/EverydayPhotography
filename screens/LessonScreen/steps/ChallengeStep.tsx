@@ -1,18 +1,24 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Image } from "react-native";
 
 import type { ChallengeStep as ChallengeStepData } from "@/types/lesson";
 import { sharedStyles } from "@/styles/shared";
 import { styles } from "../styles";
 
 /**
- * Renders a "challenge" step: intro copy + a numbered shots card.
+ * Renders a "challenge" step: optional image + intro copy + a numbered shots card.
  * CTAs are NOT rendered here — they live in the parent's sticky footer
  * so they don't scroll away. Pure presentational.
  */
 export function ChallengeStep({ step }: { step: ChallengeStepData }) {
   return (
     <>
+      {step.image && (
+        <View style={sharedStyles.section}>
+          <Image source={step.image} style={styles.gradientCard} resizeMode="cover" />
+        </View>
+      )}
+
       <View style={sharedStyles.section}>
         <Text style={styles.challengeIntro}>{step.intro}</Text>
       </View>
